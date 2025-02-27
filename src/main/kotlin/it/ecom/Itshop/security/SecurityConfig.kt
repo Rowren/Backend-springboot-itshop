@@ -11,25 +11,30 @@ import org.springframework.security.web.SecurityFilterChain
 @Configuration
 class SecurityConfig {
 
+    /** ✅ ใช้เข้ารหัสรหัสผ่าน */
     @Bean
     fun passwordEncoder(): BCryptPasswordEncoder {
         return BCryptPasswordEncoder()
     }
 
+    /** ✅ จัดการ Authentication */
     @Bean
     fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager {
         return authenticationConfiguration.authenticationManager
     }
 
+    /** ✅ กำหนดการเข้าถึง API */
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/auth/**").permitAll() // ✅ เปิดให้ Register/Login ใช้ได้
-                it.requestMatchers("/api/products/**").permitAll() // ✅ เปิดให้ทุกคนใช้ API นี้
+                it.requestMatchers("/api/auth/**").permitAll()
+                it.requestMatchers("/api/products/**").permitAll()
                 it.requestMatchers("/api/category/**").permitAll()
-                it.anyRequest().authenticated() // ❌ API อื่นต้อง Login ก่อน
+                it.requestMatchers("/api/user/**").permitAll() // << อนุญาตทุกคนเข้าถึง
+                it.anyRequest().authenticated()
             }
+            .sessionManagement { it.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS) }
         return http.build()
     }
 

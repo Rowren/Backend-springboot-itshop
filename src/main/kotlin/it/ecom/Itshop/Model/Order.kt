@@ -1,5 +1,6 @@
 package it.ecom.Itshop.Model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -13,16 +14,36 @@ data class Order(
     @Column(nullable = false)
     var total: Double = 0.0,
 
-    var status: String = "PENDING",
-    var paymentMethod: String = "CASH",
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var status: OrderStatus = OrderStatus.PENDING, // ใช้ Enum
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var paymentMethod: PaymentMethod = PaymentMethod.CASH, // ใช้ Enum
+
     var shippedDate: LocalDateTime? = null,
     var createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     var user: User? = null,
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var orderDetails: MutableList<OrderDetail> = mutableListOf() // ใช้ MutableList
-)
+    @JsonIgnore
+    var orderDetails: MutableList<OrderDetail> = mutableListOf()
+) {
+    @PreUpdate
+    fun onUpdate() {
+        updatedAt = LocalDateTime.now()
+    }
+}
+
+enum class OrderStatus {
+    PENDING, PAID, SHIPPED, CANCELED
+}
+
+enum class PaymentMethod {
+    CASH, CREDIT_CARD, PAYPAL
+}

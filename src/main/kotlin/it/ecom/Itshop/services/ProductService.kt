@@ -9,19 +9,17 @@ import java.util.*
 class ProductService(private val productRepository: ProductRepository) {
 
     // Get all products
-    // select * from products
     fun getAllProducts(): List<Product> = productRepository.findAll()
 
     // Get product by id
-    // select * from products where id = ?
-    fun getProductById(id: Int): Optional<Product> = productRepository.findById(id)
+    fun getProductById(id: Int): Optional<Product> {
+        return productRepository.findById(id)
+    }
 
     // Create product
-    // insert into products (product_name, product_price, product_quantity, product_image) values (?, ?, ?, ?)
     fun createProduct(product: Product): Product = productRepository.save(product)
 
-    // Update Product
-    // update products set product_name = ?, product_price = ?, product_quantity = ?, product_image = ? where id = ?
+    // Update product
     fun updateProduct(id: Int, updateProduct: Product): Product {
         return if (productRepository.existsById(id)) {
             updateProduct.id = id
@@ -31,8 +29,7 @@ class ProductService(private val productRepository: ProductRepository) {
         }
     }
 
-    // Delete Product
-    // delete from products where id = ?
+    // Delete product
     fun deleteProduct(id: Int) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id)
@@ -41,4 +38,17 @@ class ProductService(private val productRepository: ProductRepository) {
         }
     }
 
+    // ✅ ฟังก์ชัน Filter สินค้าตามชื่อ, หมวดหมู่ และช่วงราคา
+    fun getFilteredProducts(keyword: String?, category: String?, minPrice: Double?, maxPrice: Double?): List<Product> {
+        return when {
+            keyword != null && category != null && minPrice != null && maxPrice != null ->
+                productRepository.findByNameContainingAndCategory_NameAndPriceBetween(keyword, category, minPrice, maxPrice)
+
+            keyword != null -> productRepository.findByNameContaining(keyword)
+            category != null -> productRepository.findByCategory_Name(category)
+            minPrice != null && maxPrice != null -> productRepository.findByPriceBetween(minPrice, maxPrice)
+
+            else -> productRepository.findAll()
+        }
+    }
 }

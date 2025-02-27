@@ -1,6 +1,6 @@
 package it.ecom.Itshop.Model
 
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.*
 
 @Entity
@@ -14,6 +14,6 @@ data class Category(
     var name: String = "",
 
     @OneToMany(mappedBy = "category", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var products: MutableList<Product> = mutableListOf() // ใช้ MutableList
+    @JsonIgnoreProperties("category") // ✅ ป้องกัน loop
+    var products: MutableList<Product> = mutableListOf()
 )
-
