@@ -1,32 +1,30 @@
 package it.ecom.Itshop.controller
 
-import it.ecom.Itshop.Model.User
 import it.ecom.Itshop.Model.Order
-import it.ecom.Itshop.service.UserService
+import it.ecom.Itshop.services.UserOrderService
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import java.security.Principal
 
 @RestController
 @RequestMapping("/api/user")
-class UserController(private val userService: UserService) {
+class OrderController(private val userOrderService: UserOrderService) {
 
-    /** ✅ ดึงข้อมูล User */
-    @GetMapping("/profile")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") // ❌ เช็คสิทธิ์
-    fun getProfile(@AuthenticationPrincipal user: User): ResponseEntity<User> {
-        return ResponseEntity.ok(user)
+    @GetMapping("/orders")
+    fun getAllOrders(): ResponseEntity<List<Order>> {
+        return ResponseEntity.ok(userOrderService.getAllOrders())
     }
 
+    @GetMapping("/orders/{id}")
+    fun getOrderById(@PathVariable id: Int): ResponseEntity<Order> {
+        return userOrderService.getOrderById(id)
+            .map { ResponseEntity.ok(it) }
+            .orElseGet { ResponseEntity.notFound().build() }
+    }
 
-    /** ✅ API สร้าง Order */
     @PostMapping("/orders")
-    fun createOrder(
-        @RequestBody orderDetails: List<Map<String, Any>>, // รับ Product ID และ Quantity
-        principal: Principal
-    ): ResponseEntity<Order> {
-        return userService.createOrder(orderDetails, principal.name)
+    fun createOrder(@RequestBody order: Order): ResponseEntity<Order> {
+        println("📌 Receiving Order: $order")  // ✅ Debug Log
+        val newOrder = userOrderService.createOrder(order)
+        return ResponseEntity.ok(newOrder)
     }
 }

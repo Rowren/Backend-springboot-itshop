@@ -19,7 +19,7 @@ class OrderService(
     fun createOrder(orderDetails: List<Map<String, Any>>, user: User): ResponseEntity<Order> {
         val order = Order(
             user = user,
-            total = 0.0, // คำนวณด้านล่าง
+            total = 0.0,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )

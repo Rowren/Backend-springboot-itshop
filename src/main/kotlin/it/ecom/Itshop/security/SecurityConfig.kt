@@ -31,6 +31,7 @@ class SecurityConfig {
                 it.requestMatchers("/api/auth/**").permitAll()
                 it.requestMatchers("/api/products/**").permitAll()
                 it.requestMatchers("/api/category/**").permitAll()
+                it.requestMatchers("/api/admin/**").permitAll()
                 it.requestMatchers("/api/user/**").permitAll() // << อนุญาตทุกคนเข้าถึง
                 it.anyRequest().authenticated()
             }
